@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 from .settings import get_talk_choices
@@ -44,6 +45,7 @@ class Room(models.Model):
 
 
 class Session(models.Model):
+    leaders = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=False)
     schedule_time = models.ForeignKey(
         ScheduleTime,
         on_delete=models.PROTECT,
