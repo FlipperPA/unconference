@@ -3,6 +3,7 @@ build/*
 dist/*
 htmlcov/*
 venv/*
+unconference/_version.py
 
 # Python bytecode:
 *.py[co]
