@@ -14,6 +14,9 @@ class UnConferenceEvent(models.Model):
     end = models.DateTimeField(null=False)
     active = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name = "UnConference event"
+
 
 class ScheduleTime(models.Model):
     """
