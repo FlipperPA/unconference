@@ -17,6 +17,9 @@ class UnConferenceEvent(models.Model):
     class Meta:
         verbose_name = "UnConference event"
 
+    def __str__(self):
+        return f"{self.title}"
+
 
 class ScheduleTime(models.Model):
     """
@@ -32,6 +35,10 @@ class ScheduleTime(models.Model):
     start = models.DateTimeField(null=False)
     end = models.DateTimeField(null=False)
     allow_sessions = models.BooleanField(default=False)
+    max_sessions = models.SmallIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.title} ({self.start} - {self.end})"
 
 
 class Room(models.Model):
@@ -44,7 +51,10 @@ class Room(models.Model):
         on_delete=models.PROTECT,
     )
     title = models.TextField(null=False, blank=False)
-    description = models.TextField(null=False, blank=False)
+    description = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.title}"
 
 
 class Session(models.Model):
@@ -52,6 +62,7 @@ class Session(models.Model):
     schedule_time = models.ForeignKey(
         ScheduleTime,
         on_delete=models.PROTECT,
+        limit_choices_to={"allow_sessions": True},
     )
     room = models.ForeignKey(
         Room,
@@ -64,3 +75,6 @@ class Session(models.Model):
         default=1,
         help_text="The type of session.",
     )
+
+    def __str__(self):
+        return f"{self.title} ({self.schedule_time})"
