@@ -58,7 +58,7 @@ class Room(models.Model):
 
 
 class Session(models.Model):
-    leaders = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=False)
+    leaders = models.TextField()
     schedule_time = models.ForeignKey(
         ScheduleTime,
         on_delete=models.PROTECT,
@@ -66,10 +66,12 @@ class Session(models.Model):
     )
     room = models.ForeignKey(
         Room,
+        blank=True,
+        null=True,
         on_delete=models.PROTECT,
     )
     title = models.TextField(null=False, blank=False)
-    description = models.TextField(null=False, blank=False)
+    description = models.TextField(null=True, blank=True)
     session_type = models.PositiveSmallIntegerField(
         choices=get_talk_choices(),
         default=1,
