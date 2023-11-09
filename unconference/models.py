@@ -76,5 +76,12 @@ class Session(models.Model):
         help_text="The type of session.",
     )
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["schedule_time", "room"], name="unique_booking"
+            ),
+        ]
+
     def __str__(self):
         return f"{self.title} ({self.schedule_time})"
