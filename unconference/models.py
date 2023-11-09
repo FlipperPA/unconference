@@ -58,7 +58,7 @@ class Room(models.Model):
 
 
 class Session(models.Model):
-    leaders = models.TextField()
+    leaders = models.TextField(null=True, blank=True)
     schedule_time = models.ForeignKey(
         ScheduleTime,
         on_delete=models.PROTECT,
