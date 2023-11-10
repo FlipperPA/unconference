@@ -1,1 +1,8 @@
-HELLO WORLD!
+{% for e in events %}
+    {% if forloop.first %}
+        SELECT AN EVENT:<br><br>
+    {% endif %}
+    <li><a href="?uid={{ e.id }}">{{ e.title }}</a></li>
+{% empty %}
+There are no UnConference Events! Create one in the admin.
+{% endfor %}
