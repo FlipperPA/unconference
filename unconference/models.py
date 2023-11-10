@@ -44,7 +44,7 @@ class ScheduleTime(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.title} ({self.start} - {self.end})"
+        return f"{self.title} ({self.start:%H:%M %p} - {self.end:%H:%M %p})"
 
 
 class Room(models.Model):

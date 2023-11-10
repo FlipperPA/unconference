@@ -39,9 +39,9 @@ class RoomAdmin(TextInputModelAdmin):
 
 
 @admin.register(Session)
-class SessionAdmin(TextInputModelAdmin):
-    list_display = ("schedule_time", "room", "title")
+class SessionAdmin(admin.ModelAdmin):
+    list_display = ("title", "leaders", "schedule_time", "room")
     search_fields = ("title", "description")
     ordering = ("schedule_time", "room")
-    fields = ("leaders", "schedule_time", "room", "title", "description", "session_type")
+    fields = ("schedule_time", "room", "leaders", "title", "description", "session_type")
     list_filter = ("schedule_time__unconference_event", "session_type")
