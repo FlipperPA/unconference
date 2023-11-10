@@ -50,7 +50,10 @@ class HomeView(TemplateView):
                     "description": s.description,
                     "session_type": Session.talk_choices[s.session_type],
                 }
-            context["schedule_times"] = [s.title for s in schedule_times]
+            context["schedule_times"] = [{
+                "title": s.title,
+                "start": s.start,
+            } for s in schedule_times]
             context["sessions"] = sessions
             context["schedule"] = schedule
         else:

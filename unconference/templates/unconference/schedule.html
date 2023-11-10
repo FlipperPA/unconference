@@ -24,8 +24,11 @@
           <thead>
             <tr>
               <th class="unconference-schedule__time"></th>
-              {% for schedule_time in schedule_times %}
-                <th class="unconference-schedule__time">{{ schedule_time }}</th>
+              {% for s in schedule_times %}
+                <th class="unconference-schedule__time">
+                  {{ s.title }}<br>
+                  {{ s.start|time:'H:i A' }}
+                </th>
               {% endfor %}
               <th class="unconference-schedule__time"></th>
             </tr>
@@ -44,7 +47,9 @@
                       {{ session.leaders }}<br />
                     {% endif %}
 
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#session-{{ session.id }}">MORE</button>
+                    {% if session.id %}
+                      <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#session-{{ session.id }}">MORE</button>
+                    {% endif %}
                   </td>
                 {% endfor %}
                 <td class="unconference-schedule__room">{{ room }}</td>
@@ -64,7 +69,7 @@
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="session-{{ s.id }}-label">{{ s.title }}</h5>
+              <h5 class="modal-title" id="session-{{ s.id }}-label">{{ s.title }} - {{ s.leaders }}</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
