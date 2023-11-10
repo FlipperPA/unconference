@@ -1,0 +1,23 @@
+<table border=1>
+    <tr>
+        <th></th>
+        {% for s in schedule_times %}
+            <th>{{ s }}</th>
+        {% endfor %}
+        <th></th>
+    </tr>
+    {% for r, schedule_times in schedule.items %}
+        <tr><td>{{ r }}</td>
+        {% for s, talk in schedule_times.items %}
+            <td>
+                {% if talk.title %}
+                    <strong>{{ talk.title }}</strong><br>
+                {% endif %}
+                {% if talk.leaders %}
+                    {{ talk.leaders }}<br>
+                {% endif %}
+            </td>
+        {% endfor %}
+        <td>{{ r }}</td></tr>
+    {% endfor %}
+</table>
