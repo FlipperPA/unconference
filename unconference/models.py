@@ -35,7 +35,6 @@ class ScheduleTime(models.Model):
     start = models.DateTimeField(null=False)
     end = models.DateTimeField(null=False)
     allow_sessions = models.BooleanField(default=False)
-    max_sessions = models.SmallIntegerField(default=0)
 
     class Meta:
         constraints = [
