@@ -37,6 +37,13 @@ class ScheduleTime(models.Model):
     allow_sessions = models.BooleanField(default=False)
     max_sessions = models.SmallIntegerField(default=0)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["unconference_event", "title"], name="unique_schedule_time"
+            ),
+        ]
+
     def __str__(self):
         return f"{self.title} ({self.start} - {self.end})"
 
@@ -51,7 +58,15 @@ class Room(models.Model):
         on_delete=models.PROTECT,
     )
     title = models.TextField(null=False, blank=False)
+    capacity = models.PositiveSmallIntegerField(default=0)
     description = models.TextField(null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["unconference_event", "title"], name="unique_room"
+            ),
+        ]
 
     def __str__(self):
         return f"{self.title}"
