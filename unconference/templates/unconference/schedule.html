@@ -34,15 +34,17 @@
             {% for room, schedule_times in schedule.items %}
               <tr>
                 <td class="unconference-schedule__room">{{ room }}</td>
-                {% for schedule_time, talk in schedule_times.items %}
-                  <td class="unconference-schedule__talk">
-                    {% if talk.title %}
-                      <strong>{{ talk.title }}</strong><br />
+                {% for schedule_time, session in schedule_times.items %}
+                  <td class="unconference-schedule__session">
+                    {% if session.title %}
+                      <strong>{{ session.title }}</strong><br />
                     {% endif %}
 
-                    {% if talk.leaders %}
-                      {{ talk.leaders }}<br />
+                    {% if session.leaders %}
+                      {{ session.leaders }}<br />
                     {% endif %}
+
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#session-{{ session.id }}">MORE</button>
                   </td>
                 {% endfor %}
                 <td class="unconference-schedule__room">{{ room }}</td>
@@ -56,5 +58,21 @@
         {% endblock map %}
       </div>
     </div>
+
+    {% for s in sessions %}
+      <div class="modal fade" id="session-{{ s.id }}" tabindex="-1" aria-labelledby="session-{{ s.id }}-label" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="session-{{ s.id }}-label">{{ s.title }}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              {{ s.description }}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
   </body>
 </html>

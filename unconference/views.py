@@ -44,12 +44,14 @@ class HomeView(TemplateView):
             }
             for s in sessions:
                 schedule[s.room.title][s.schedule_time.title] = {
+                    "id": s.id,
                     "leaders": s.leaders,
                     "title": s.title,
                     "description": s.description,
                     "session_type": Session.talk_choices[s.session_type],
                 }
             context["schedule_times"] = [s.title for s in schedule_times]
+            context["sessions"] = sessions
             context["schedule"] = schedule
         else:
             context["events"] = unconference_event

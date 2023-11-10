@@ -31,10 +31,10 @@ class ScheduleTimeAdmin(TextInputModelAdmin):
 
 @admin.register(Room)
 class RoomAdmin(TextInputModelAdmin):
-    list_display = ("title", "unconference_event")
+    list_display = ("title", "capacity", "unconference_event")
     search_fields = ("title", "unconference_event")
     ordering = ("title", "unconference_event")
-    fields = ("title", "description", "unconference_event")
+    fields = ("title", "capacity", "description", "unconference_event")
     list_filter = ("unconference_event",)
 
 
