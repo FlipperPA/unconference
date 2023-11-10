@@ -58,6 +58,10 @@ class Room(models.Model):
 
 
 class Session(models.Model):
+    talk_choices = {}
+    for t in get_talk_choices():
+        talk_choices[t[0]] = t[1]
+
     leaders = models.TextField(null=True, blank=True)
     schedule_time = models.ForeignKey(
         ScheduleTime,
