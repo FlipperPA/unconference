@@ -1,23 +1,65 @@
-<table border=1>
-    <tr>
-        <th></th>
-        {% for s in schedule_times %}
-            <th>{{ s }}</th>
-        {% endfor %}
-        <th></th>
-    </tr>
-    {% for r, schedule_times in schedule.items %}
-        <tr><td>{{ r }}</td>
-        {% for s, talk in schedule_times.items %}
-            <td>
-                {% if talk.title %}
-                    <strong>{{ talk.title }}</strong><br>
-                {% endif %}
-                {% if talk.leaders %}
-                    {{ talk.leaders }}<br>
-                {% endif %}
-            </td>
-        {% endfor %}
-        <td>{{ r }}</td></tr>
-    {% endfor %}
-</table>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{{ event.title }} schedule</title>
+        <style>
+            .unconference-schedule {
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+
+            .unconference-schedule__time,
+            .unconference-schedule__room,
+            .unconference-schedule__talk {
+                border: 1px solid black;
+            }
+
+            .unconference-schedule__time {
+                background: #EEEEEE;
+            }
+
+            .unconference-schedule__time,
+            .unconference-schedule__room {
+                padding: 0.5rem;
+            }
+
+            .unconference-schedule__talk {
+                padding: 1rem;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>{{ event.title }}</h1>
+
+        <table class="unconference-schedule">
+            <tr>
+                <th class="unconference-schedule__time"></th>
+                {% for schedule_time in schedule_times %}
+                    <th class="unconference-schedule__time">{{ schedule_time }}</th>
+                {% endfor %}
+                <th class="unconference-schedule__time"></th>
+            </tr>
+
+            {% for room, schedule_times in schedule.items %}
+                <tr>
+                    <td class="unconference-schedule__room">{{ room }}</td>
+
+                    {% for schedule_time, talk in schedule_times.items %}
+                        <td class="unconference-schedule__talk">
+                            {% if talk.title %}
+                                <strong>{{ talk.title }}</strong><br>
+                            {% endif %}
+
+                            {% if talk.leaders %}
+                                {{ talk.leaders }}<br>
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+
+                    <td class="unconference-schedule__room">{{ room }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+    </body>
+</html>

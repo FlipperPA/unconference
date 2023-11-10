@@ -55,4 +55,4 @@ class HomeView(TemplateView):
             context["events"] = unconference_event
 
         return context
-    
+
