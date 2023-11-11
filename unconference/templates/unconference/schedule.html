@@ -23,14 +23,14 @@
         <table class="table table-striped table-dark">
           <thead>
             <tr>
-              <th class="unconference-schedule__time"></th>
+              <th class="unconference-schedule__time">Room</th>
               {% for s in schedule_times %}
                 <th class="unconference-schedule__time">
                   {{ s.title }}<br>
                   {{ s.start|time:'H:i A' }}
                 </th>
               {% endfor %}
-              <th class="unconference-schedule__time"></th>
+              <th class="unconference-schedule__time">Room</th>
             </tr>
           </thead>
           <tbody>
