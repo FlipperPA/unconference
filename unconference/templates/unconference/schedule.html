@@ -62,14 +62,14 @@
               {% endfor %}
               <tfoot>
                 <tr>
-                  <td class="unconference-schedule__time">Room</td>
+                  <th class="unconference-schedule__time">Room</th>
                   {% for s in schedule_times %}
-                    <td class="unconference-schedule__time">
+                    <th class="unconference-schedule__time">
                       {{ s.title }}<br>
                       {{ s.start|time:'H:i A' }}
-                    </td>
+                    </th>
                   {% endfor %}
-                  <td class="unconference-schedule__time">Room</td>
+                  <th class="unconference-schedule__time">Room</th>
                 </tr>
               </tfoot>
             </tbody>
