@@ -60,6 +60,18 @@
                   <td class="unconference-schedule__room">{{ room }}</td>
                 </tr>
               {% endfor %}
+              <tfoot>
+                <tr>
+                  <td class="unconference-schedule__time">Room</td>
+                  {% for s in schedule_times %}
+                    <td class="unconference-schedule__time">
+                      {{ s.title }}<br>
+                      {{ s.start|time:'H:i A' }}
+                    </td>
+                  {% endfor %}
+                  <td class="unconference-schedule__time">Room</td>
+                </tr>
+              </tfoot>
             </tbody>
           </table>
         </div>
