@@ -71,6 +71,9 @@ class Room(models.Model):
         return f"{self.title} ({self.capacity})"
 
 
+TALK_CHOICES = get_talk_choices()
+
+
 class Session(models.Model):
     talk_choices = {}
     for t in get_talk_choices():
@@ -95,6 +98,10 @@ class Session(models.Model):
         default=1,
         help_text="The type of session.",
     )
+
+    @property
+    def type(self):
+        return dict(TALK_CHOICES).get(self.session_type, 'UNKNOWN')
 
     class Meta:
         constraints = [

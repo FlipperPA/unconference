@@ -1,7 +1,41 @@
-from django.shortcuts import render
+from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView
 
 from .models import UnConferenceEvent, ScheduleTime, Room, Session
+
+
+def serialize_one(entity, fields):
+    return {
+        field: print(field) or getattr(entity, field)
+        for field in fields
+    }
+
+
+def serialize(entities, fields):
+    return [
+        {
+            field: getattr(entity, field)
+            for field in fields
+        }
+        for entity in entities
+    ]
+
+
+def event(request, event_id):
+    event = get_object_or_404(UnConferenceEvent, id=event_id)
+    times = ScheduleTime.objects.filter(unconference_event_id=event)
+    rooms = Room.objects.filter(unconference_event_id=event)
+    sessions = Session.objects.filter(room__in=rooms)
+    return JsonResponse({
+        'event': serialize_one(event, ['title', 'start', 'end', 'active']),
+        'times': serialize(times, ['title', 'start', 'end', 'allow_sessions']),
+        'rooms': serialize(rooms, ['title', 'capacity', 'description']),
+        'sessions': serialize(
+            sessions,
+            ['leaders', 'schedule_time_id', 'room_id', 'title', 'description', 'type']
+        )
+    })
 
 
 class HomeView(TemplateView):
@@ -36,7 +70,7 @@ class HomeView(TemplateView):
                 schedule_time__unconference_event=context["event"],
                 schedule_time__isnull=False,
                 room__isnull=False,
-            )
+            ).select_related('room')
             schedule = {
                 r.title: {
                     s.title: {} for s in schedule_times
@@ -51,9 +85,12 @@ class HomeView(TemplateView):
                     "session_type": Session.talk_choices[s.session_type],
                 }
             context["schedule_times"] = [{
-                "title": s.title,
-                "start": s.start,
-            } for s in schedule_times]
+                "id": time.id,
+                "title": time.title,
+                "start": time.start,
+                "sessions": sessions.filter(schedule_time=time),
+            } for time in schedule_times]
+
             context["sessions"] = sessions
             context["schedule"] = schedule
         else:
