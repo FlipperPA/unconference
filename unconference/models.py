@@ -21,6 +21,26 @@ class UnConferenceEvent(models.Model):
         return f"{self.title}"
 
 
+def default_data():
+    return {
+        'votes': {},
+        'attendance': {},
+    }
+
+
+class UserEventData(models.Model):
+    """
+    Model to store a users interactions (vodting, attendance, etc) with an event.
+    The structure of the data column may vary from conference to conference.
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    unconference_event = models.ForeignKey(
+        UnConferenceEvent,
+        on_delete=models.PROTECT,
+    )
+    data = models.JSONField(default=default_data)
+
+
 class ScheduleTime(models.Model):
     """
     Timeslots for the event's schedule; allow_sessions should be set to True for any

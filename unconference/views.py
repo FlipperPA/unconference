@@ -1,13 +1,14 @@
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView
+import json
 
-from .models import UnConferenceEvent, ScheduleTime, Room, Session
-
+from .models import UnConferenceEvent, ScheduleTime, Room, Session, UserEventData
+from .decorators import ensure_guest_login
 
 def serialize_one(entity, fields):
     return {
-        field: print(field) or getattr(entity, field)
+        field: getattr(entity, field)
         for field in fields
     }
 
@@ -22,20 +23,39 @@ def serialize(entities, fields):
     ]
 
 
+@ensure_guest_login
+def user_event_data(request, event_id):
+    data, _new = UserEventData.objects.get_or_create(
+        user=request.user,
+        unconference_event_id=event_id,
+    )
+    if request.method == 'PUT':
+        data.data = json.loads(request.body.decode("utf-8") or "{}")
+        data.save()
+    return JsonResponse({**data.data, 'id': data.id})
+
+
+@ensure_guest_login
+def user_json(request):
+    fields = ['id', 'full_name', 'short_name', 'email', 'is_superuser', 'is_staff']
+    return JsonResponse(serialize_one(request.user, fields))
+
+
 def event(request, event_id):
     event = get_object_or_404(UnConferenceEvent, id=event_id)
     times = ScheduleTime.objects.filter(unconference_event_id=event)
     rooms = Room.objects.filter(unconference_event_id=event)
     sessions = Session.objects.filter(room__in=rooms)
-    return JsonResponse({
-        'event': serialize_one(event, ['title', 'start', 'end', 'active']),
-        'times': serialize(times, ['title', 'start', 'end', 'allow_sessions']),
-        'rooms': serialize(rooms, ['title', 'capacity', 'description']),
+    data = serialize_one(event, ['id', 'title', 'start', 'end', 'active'])
+    data.update({
+        'times': serialize(times, ['id', 'title', 'start', 'end', 'allow_sessions']),
+        'rooms': serialize(rooms, ['id', 'title', 'capacity', 'description']),
         'sessions': serialize(
             sessions,
-            ['leaders', 'schedule_time_id', 'room_id', 'title', 'description', 'type']
+            ['id', 'leaders', 'schedule_time_id', 'room_id', 'title', 'description', 'type']
         )
     })
+    return JsonResponse(data)
 
 
 class HomeView(TemplateView):

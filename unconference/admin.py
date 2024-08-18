@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.forms.widgets import TextInput
 from django.db.models import TextField
 
-from .models import UnConferenceEvent, ScheduleTime, Room, Session
+from .models import UnConferenceEvent, ScheduleTime, Room, Session, UserEventData
 
 
 class TextInputModelAdmin(admin.ModelAdmin):
@@ -45,3 +45,18 @@ class SessionAdmin(admin.ModelAdmin):
     ordering = ("schedule_time", "room")
     fields = ("schedule_time", "room", "leaders", "title", "description", "session_type")
     list_filter = ("schedule_time__unconference_event", "session_type")
+
+
+@admin.register(UserEventData)
+class UserEventDataAdmin(admin.ModelAdmin):
+    """
+    Readonly admin for UserEventData
+    """
+    list_display = ("user", "unconference_event")
+    readonly_fields = ("user", "unconference_event", "data")
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
