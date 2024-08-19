@@ -1,7 +1,11 @@
+from django.contrib.staticfiles import finders
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import TemplateView
+from django.views.static import serve
 import json
+import os
 
 from .models import UnConferenceEvent, ScheduleTime, Room, Session, UserEventData
 from .decorators import ensure_guest_login
@@ -118,3 +122,13 @@ class HomeView(TemplateView):
 
         return context
 
+
+@ensure_csrf_cookie
+def index(request, *args, **kwargs):
+    path = kwargs.get('path', finders.find('index.html'))
+    return serve(
+        request,
+        os.path.basename(path),
+        os.path.dirname(path)
+    )
+    return response
