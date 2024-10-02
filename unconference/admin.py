@@ -31,11 +31,11 @@ class ScheduleTimeAdmin(TextInputModelAdmin):
 
 @admin.register(Room)
 class RoomAdmin(TextInputModelAdmin):
-    list_display = ("title", "capacity", "unconference_event")
-    search_fields = ("title", "unconference_event")
-    ordering = ("title", "unconference_event")
-    fields = ("title", "capacity", "description", "unconference_event")
-    list_filter = ("unconference_event",)
+    list_display = ("title", "capacity", "location")
+    search_fields = ("title",)
+    ordering = ("title", "location")
+    fields = ("title", "capacity", "description", "location")
+    list_filter = ("location",)
 
 
 @admin.register(Session)
@@ -43,8 +43,17 @@ class SessionAdmin(admin.ModelAdmin):
     list_display = ("title", "leaders", "schedule_time", "room")
     search_fields = ("title", "description")
     ordering = ("schedule_time", "room")
-    fields = ("schedule_time", "room", "leaders", "title", "description", "session_type")
+    fields = ("schedule_time", "room", "leaders", "title", "description", "session_type", "users")
+    filter_horizontal = ('users',)
     list_filter = ("schedule_time__unconference_event", "session_type")
+    def get_field_queryset(self, db, db_field, request):
+        if db_field.name == 'users':
+
+            return db_field.remote_field.model._default_manager.exclude(
+                email__endswith="example.com",
+            )
+
+        super().get_field_queryset(db, db_field, request)
 
 
 @admin.register(UserEventData)

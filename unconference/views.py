@@ -29,14 +29,52 @@ def serialize(entities, fields):
 
 @ensure_guest_login
 def user_event_data(request, event_id):
-    data, _new = UserEventData.objects.get_or_create(
+    user_event_data, _new = UserEventData.objects.get_or_create(
         user=request.user,
         unconference_event_id=event_id,
     )
     if request.method == 'PUT':
-        data.data = json.loads(request.body.decode("utf-8") or "{}")
-        data.save()
-    return JsonResponse({**data.data, 'id': data.id})
+        user_event_data.data = json.loads(request.body.decode("utf-8") or "{}")
+        user_event_data.save()
+    return JsonResponse({**user_event_data.data, 'id': user_event_data.id})
+
+
+def swap_sessions(request):
+    if not request.user.is_superuser:
+        return JsonResponse({'error': 'Not allowed' }, status=403)
+    data = json.loads(request.body.decode("utf-8") or "{}")
+    session_1 = Session.objects.filter(id=data['session_1'].get('id')).first()
+    session_2 = Session.objects.filter(id=data['session_2'].get('id')).first()
+
+    if session_1 and session_2:
+        session_1.room_id = None
+        session_1.schedule_time_id = None
+        session_1.save()
+
+    if session_2:
+        session_2.schedule_time_id = data['session_1']['time_id']
+        session_2.room_id = data['session_1']['room_id']
+        session_2.save()
+
+    if session_1:
+        session_1.schedule_time_id = data['session_2']['time_id']
+        session_1.room_id = data['session_2']['room_id']
+        session_1.save()
+
+    return JsonResponse({})
+
+
+def session(request, session_id):
+    data = json.loads(request.body.decode("utf-8") or "{}")
+    session = get_object_or_404(Session, id=session_id)
+    allowed_user_ids = [u.id for u in session.users.all()]
+    if not request.user.id in allowed_user_ids:
+        return JsonResponse({'error': 'Not allowed' }, status=403)
+    session.title = data['title']
+    session.description = data['description']
+    session.data['links'] = data['links']
+    session.save()
+    return JsonResponse({})
 
 
 @ensure_guest_login
@@ -45,18 +83,26 @@ def user_json(request):
     return JsonResponse(serialize_one(request.user, fields))
 
 
+def events(request):
+    events = UnConferenceEvent.objects.filter(active=True)
+    return JsonResponse({
+        'events': serialize(events, ['id', 'title', 'start', 'end', 'active'])
+    })
+
 def event(request, event_id):
     event = get_object_or_404(UnConferenceEvent, id=event_id)
+    location = event.location
     times = ScheduleTime.objects.filter(unconference_event_id=event)
-    rooms = Room.objects.filter(unconference_event_id=event)
-    sessions = Session.objects.filter(room__in=rooms)
+    rooms = location.room_set.all()
+    sessions = Session.objects.filter(unconference_event=event).prefetch_related('users')
     data = serialize_one(event, ['id', 'title', 'start', 'end', 'active'])
     data.update({
         'times': serialize(times, ['id', 'title', 'start', 'end', 'allow_sessions']),
-        'rooms': serialize(rooms, ['id', 'title', 'capacity', 'description']),
+        'rooms': serialize(rooms, ['id', 'title', 'capacity', 'description', 'geometry']),
+        'location': location and serialize_one(location, ['id', 'title', 'geometry']),
         'sessions': serialize(
             sessions,
-            ['id', 'leaders', 'schedule_time_id', 'room_id', 'title', 'description', 'type']
+            ['id', 'leaders', 'schedule_time_id', 'room_id', 'title', 'description', 'type', 'leaders_info', 'data']
         )
     })
     return JsonResponse(data)
@@ -86,7 +132,7 @@ class HomeView(TemplateView):
                 "start",
             )
             rooms = Room.objects.filter(
-                unconference_event=context["event"],
+                location=unconference_event[0].location,
             ).order_by(
                 "title",
             )

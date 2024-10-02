@@ -13,18 +13,30 @@ class UnConferenceEvent(models.Model):
     start = models.DateTimeField(null=False)
     end = models.DateTimeField(null=False)
     active = models.BooleanField(default=False)
+    location = models.ForeignKey('Location', on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         verbose_name = "UnConference event"
 
     def __str__(self):
-        return f"{self.title}"
+        return self.title
+
+
+class Location(models.Model):
+    """
+    The building where a conference occurs
+    """
+    title = models.CharField(max_length=128)
+    geometry = models.JSONField(default=dict)
+
+    def __str__(self):
+        return self.title
 
 
 def default_data():
     return {
         'votes': {},
-        'attendance': {},
+        'attendedance': {},
     }
 
 
@@ -71,24 +83,19 @@ class Room(models.Model):
     """
     Rooms where sessions can take place.
     """
-
-    unconference_event = models.ForeignKey(
-        UnConferenceEvent,
-        on_delete=models.PROTECT,
-    )
     title = models.TextField(null=False, blank=False)
     capacity = models.PositiveSmallIntegerField(default=0)
     description = models.TextField(null=True, blank=True)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["unconference_event", "title"], name="unique_room"
-            ),
-        ]
+    location = models.ForeignKey(
+        'Location',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    geometry = models.JSONField(default=dict)
 
     def __str__(self):
-        return f"{self.title} ({self.capacity})"
+        return f'{self.title}@{self.location}'
 
 
 TALK_CHOICES = get_talk_choices()
@@ -100,8 +107,13 @@ class Session(models.Model):
         talk_choices[t[0]] = t[1]
 
     leaders = models.TextField(null=True, blank=True)
+    users = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+    )
     schedule_time = models.ForeignKey(
         ScheduleTime,
+        blank=True,
+        null=True,
         on_delete=models.PROTECT,
         limit_choices_to={"allow_sessions": True},
     )
@@ -118,6 +130,21 @@ class Session(models.Model):
         default=1,
         help_text="The type of session.",
     )
+    data = models.JSONField(default=dict)
+    unconference_event = models.ForeignKey(
+        UnConferenceEvent,
+        on_delete=models.PROTECT,
+    )
+
+    @property
+    def leaders_info(self):
+        return [
+            {
+                'id': user.id,
+                'full_name': user.full_name,
+            }
+            for user in self.users.all()
+        ]
 
     @property
     def type(self):
