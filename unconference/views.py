@@ -84,7 +84,7 @@ def user_json(request):
 
 
 def events(request):
-    events = UnConferenceEvent.objects.filter(active=True)
+    events = UnConferenceEvent.objects.all()
     return JsonResponse({
         'events': serialize(events, ['id', 'title', 'start', 'end', 'active'])
     })

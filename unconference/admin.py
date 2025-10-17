@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.forms.widgets import TextInput
 from django.db.models import TextField
 
-from .models import UnConferenceEvent, ScheduleTime, Room, Session, UserEventData
+from .models import UnConferenceEvent, ScheduleTime, Room, Session, UserEventData, Location
 
 
 class TextInputModelAdmin(admin.ModelAdmin):
@@ -11,12 +11,17 @@ class TextInputModelAdmin(admin.ModelAdmin):
     }
 
 
+@admin.register(Location)
+class LocationAdmin(TextInputModelAdmin):
+    pass
+
+
 @admin.register(UnConferenceEvent)
 class UnConferenceEventAdmin(TextInputModelAdmin):
     list_display = ("title", "start", "end", "active")
     search_fields = ("title",)
     ordering = ("-active", "-start")
-    fields = ("title", "start", "end", "active")
+    fields = ("title", "location", "start", "end", "active")
     list_filter = ("active",)
 
 
@@ -46,12 +51,10 @@ class SessionAdmin(admin.ModelAdmin):
     fields = ("schedule_time", "room", "leaders", "title", "description", "session_type", "users")
     filter_horizontal = ('users',)
     list_filter = ("schedule_time__unconference_event", "session_type")
-    def get_field_queryset(self, db, db_field, request):
-        if db_field.name == 'users':
 
-            return db_field.remote_field.model._default_manager.exclude(
-                email__endswith="example.com",
-            )
+    def get_field_queryset(self, db, db_field, request):
+        if db_field.name == 'schedule_time':
+            return db_field.remote_field.model._default_manager.exclude(unconference_event__active=False)
 
         super().get_field_queryset(db, db_field, request)
 
